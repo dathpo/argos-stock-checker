@@ -11,22 +11,9 @@ class ArgosStockChecker:
     def check_stock(self):
         try:
             self.enter_postcode()
-            print("Checking for delivery...")
-            no_delivery = self.scraper.find_element_by_span_text("Not available for delivery to ")
-            if not no_delivery:
-                print("Item available for delivery at {}".format(self.postcode))
-                # TODO: Push notification
-                return self.scraper.quit(True)
-            print("Item not available for delivery, checking for collection near {}...".format(self.postcode))
-            not_in_stock = self.scraper.find_element_by_span_text("Not in stock at ")
-            if not not_in_stock:
-                print("Item available for collection near {}".format(self.postcode))
-                # TODO: Push notification
-                return self.scraper.quit(True)
-            print("Item not available for collection near {}, searching all UK stores for collection...".format(
-                self.postcode))
-            self.search_collection_stores()
-            return self.scraper.quit(True)
+            if self.check_for_delivery():
+                return True
+            return self.check_for_collection()
         except Exception as e:
             print(e)
             return self.scraper.quit(False)
@@ -38,6 +25,31 @@ class ArgosStockChecker:
         postcode_input = self.scraper.wait.until(ec.visibility_of_element_located((By.ID, "search")))
         postcode_input.send_keys(self.postcode)
         postcode_input.submit()
+
+    def check_for_delivery(self):
+        print("Checking for delivery...")
+        no_delivery = self.scraper.find_element_by_tag_text("span", "Not available for delivery to ")
+        if not no_delivery:
+            print("Item available for delivery at {}".format(self.postcode))
+            # TODO: Push notification
+            return self.scraper.quit(True)
+        print("Item not available for delivery, checking for collection near {}...".format(self.postcode))
+
+    def check_for_collection(self):
+        not_in_stock = self.scraper.find_element_by_tag_text("span", "Not in stock at ")
+        if not not_in_stock:
+            print("Item available for collection near {}".format(self.postcode))
+            # TODO: Push notification
+            return self.scraper.quit(True)
+        print("Item not available for collection near {}, searching all UK stores for collection...".format(
+            self.postcode))
+        self.search_collection_stores()
+        if not self.scraper.find_element_by_tag_text("p", "Sorry"):
+            print("Item available for collection nationwide")
+            # TODO: Push notification
+            return self.scraper.quit(True)
+        print("Item not available nationwide")
+        return self.scraper.quit(True)
 
     def search_collection_stores(self):
         change_store_link = self.scraper.wait.until(

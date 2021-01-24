@@ -23,10 +23,10 @@ class ArgosScraper:
         self.wait = WebDriverWait(self.driver, 3)
         assert "Argos" in self.driver.title
 
-    def find_element_by_span_text(self, text):
+    def find_element_by_tag_text(self, tag, text):
         try:
             self.wait.until(
-                ec.presence_of_element_located((By.XPATH, "//span[text()='{}']".format(text))))
+                ec.presence_of_element_located((By.XPATH, "//{}[text()='{}']".format(tag, text))))
             return True
         except TimeoutException:
             return False
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     scraper = ArgosScraper(args.product_id)
     stock_checker = ArgosStockChecker(scraper, args.postcode)
     for i in range(int(args.retry_count)):
-        print("New search, product ID: {}, postcode: {}, retry count: {}".format(args.product_id, args.postcode,
-                                                                                 args.retry_count))
+        print("\nNew search, product ID: {}, postcode: {}, retry count: {}".format(args.product_id, args.postcode,
+                                                                                   args.retry_count))
         scraper.setup()
         if stock_checker.check_stock():
             break
