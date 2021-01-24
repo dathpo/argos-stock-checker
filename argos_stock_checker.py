@@ -16,21 +16,20 @@ class ArgosStockChecker:
             if not no_delivery:
                 print("Item available for delivery at {}".format(self.postcode))
                 # TODO: Push notification
-                return True
+                return self.scraper.quit(True)
             print("Item not available for delivery, checking for collection near {}...".format(self.postcode))
             not_in_stock = self.scraper.find_element_by_span_text("Not in stock at ")
             if not not_in_stock:
                 print("Item available for collection near {}".format(self.postcode))
                 # TODO: Push notification
-                return True
+                return self.scraper.quit(True)
             print("Item not available for collection near {}, searching all UK stores for collection...".format(
                 self.postcode))
             self.search_collection_stores()
-            return True
+            return self.scraper.quit(True)
         except Exception as e:
             print(e)
-            self.scraper.driver.close()
-            return False
+            return self.scraper.quit(False)
 
     def enter_postcode(self):
         print("Entering postcode...")

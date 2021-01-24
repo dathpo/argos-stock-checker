@@ -17,7 +17,7 @@ class ArgosScraper:
         self.wait = None
 
     def setup(self):
-        # self.options.add_argument("--headless")
+        # self.options.add_argument("--headless")               # Add options here
         self.driver = webdriver.Chrome(options=self.options)
         self.driver.get("https://www.argos.co.uk/product/{}".format(self.product_id))
         self.wait = WebDriverWait(self.driver, 3)
@@ -30,6 +30,10 @@ class ArgosScraper:
             return True
         except TimeoutException:
             return False
+
+    def quit(self, success):
+        self.driver.close()
+        return success
 
 
 if __name__ == "__main__":
