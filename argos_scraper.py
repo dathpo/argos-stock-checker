@@ -20,7 +20,7 @@ class ArgosScraper:
         # self.options.add_argument("--headless")               # Add options here
         self.driver = webdriver.Chrome(options=self.options)
         self.driver.get("https://www.argos.co.uk/product/{}".format(self.product_id))
-        self.wait = WebDriverWait(self.driver, 3)
+        self.wait = WebDriverWait(self.driver, 5)
         assert "Argos" in self.driver.title
 
     def find_element_by_tag_text(self, tag, text):
