@@ -39,7 +39,7 @@ class ArgosScraper:
 if __name__ == "__main__":
     args = args_parser()
     scraper = ArgosScraper(args.product_id)
-    stock_checker = ArgosStockChecker(scraper, args.postcode)
+    stock_checker = ArgosStockChecker(scraper, args.product_id, args.postcode)
     for i in range(int(args.retry_count)):
         print("\nNew search, product ID: {}, postcode: {}, retry count: {}".format(args.product_id, args.postcode,
                                                                                    args.retry_count))

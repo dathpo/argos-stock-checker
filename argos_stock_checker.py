@@ -2,10 +2,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 
+from post_request import PostRequest
+
 
 class ArgosStockChecker:
-    def __init__(self, scraper, postcode):
+    def __init__(self, scraper, product_id, postcode):
         self.scraper = scraper
+        self.product_id = product_id
         self.postcode = postcode
 
     def check_stock(self):
@@ -31,7 +34,7 @@ class ArgosStockChecker:
         no_delivery = self.scraper.find_element_by_tag_text("span", "Not available for delivery to ")
         if not no_delivery:
             print("Item available for delivery at {}".format(self.postcode))
-            # TODO: Push notification
+            PostRequest("delivery", self.product_id, self.postcode).send()
             return self.scraper.quit(True)
         print("Item not available for delivery, checking for collection near {}...".format(self.postcode))
 
@@ -39,14 +42,14 @@ class ArgosStockChecker:
         not_in_stock = self.scraper.find_element_by_tag_text("span", "Not in stock at ")
         if not not_in_stock:
             print("Item available for collection near {}".format(self.postcode))
-            # TODO: Push notification
+            PostRequest("local_collection", self.product_id, self.postcode).send()
             return self.scraper.quit(True)
         print("Item not available for collection near {}, searching all UK stores for collection...".format(
             self.postcode))
         self.search_collection_stores()
         if not self.scraper.find_element_by_tag_text("p", "Sorry"):
             print("Item available for collection nationwide")
-            # TODO: Push notification
+            PostRequest("collection", self.product_id).send()
             return self.scraper.quit(True)
         print("Item not available nationwide")
         return self.scraper.quit(True)
