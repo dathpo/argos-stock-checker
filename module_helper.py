@@ -1,5 +1,25 @@
 import argparse
 from signal import SIGINT, signal
+from argos_scraper import ArgosScraper
+from argos_stock_checker import ArgosStockChecker
+from typing import NamedTuple
+
+
+class ArgParserMock(NamedTuple):
+    product_id: int
+    postcode: str
+    retry_count: int
+
+
+def main(args):
+    scraper = ArgosScraper(args.product_id)
+    stock_checker = ArgosStockChecker(scraper, args.product_id, args.postcode)
+    for i in range(int(args.retry_count)):
+        print("\nNew search, product ID: {}, postcode: {}, retry count: {}".format(args.product_id, args.postcode,
+                                                                                   args.retry_count))
+        scraper.setup()
+        if stock_checker.check_stock():
+            break
 
 
 def args_parser():
@@ -13,7 +33,9 @@ def args_parser():
 
 
 def sigint_handler(sig, frame):
-    """
-    ISR to handle the Ctrl-C combination and stop the program in a clean way
-    """
     exit(2)
+
+
+def lambda_handler(event, context):
+    arg_parser_mock = ArgParserMock(1000000, "BN2 3PZ", 10)
+    main(arg_parser_mock)
